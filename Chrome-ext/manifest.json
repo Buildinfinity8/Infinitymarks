@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "InfinityMarks",
+  "version": "1.0",
+  "description": "This web app is a for the users who are tired of mannging their web bookmarks",
+  "permissions": ["bookmarks"],
+  "action": {
+    "default_popup": "popup.html",
+    
+    "default_icon": {
+      "128": "icon.png"
+    }
+  }
+}

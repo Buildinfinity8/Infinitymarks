@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Bookmarks Organizer Demo</title>
+    <link
+      rel="stylesheet"
+      href="<https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css>"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #f5f5f5;
+        color: #333;
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .demo-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      h1 {
+        color: #4285f4;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      .extension-mockup {
+        min-height: 600px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 0 auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: white;
+        border-radius: 8px 8px 0 0;
+      }
+      .header h2 {
+        font-size: 1.5rem;
+        color: #4285f4;
+      }
+      .view-toggle {
+        display: flex;
+        gap: 5px;
+      }
+      .view-toggle button {
+        padding: 8px 16px;
+        background: #f1f1f1;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.2s;
+      }
+      .view-toggle button.active {
+        background: #4285f4;
+        color: white;
+      }
+      .view-toggle button:hover {
+        background: #e0e0e0;
+      }
+      .view-toggle button.active:hover {
+        background: #3367d6;
+      }
+      .main-content {
+        display: flex;
+        flex: 1;
+      }
+      .sidebar {
+        width: 220px;
+        background-color: white;
+        border-right: 1px solid #e0e0e0;
+        padding: 20px 0;
+        overflow-y: auto;
+      }
+      .sidebar h3 {
+        padding: 0 20px 10px;
+        color: #555;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .category-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s;
+      }
+      .category-item:hover {
+        background-color: #f1f1f1;
+      }
+      .category-item.active {
+        background-color: #e8f0fe;
+        color: #4285f4;
+        font-weight: 500;
+      }
+      .category-item i {
+        margin-right: 10px;
+        width: 16px;
+        text-align: center;
+      }
+      .subcategory-list {
+        margin-left: 36px;
+        margin-top: 5px;
+      }
+      .subcategory-item {
+        padding: 8px 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #666;
+        border-radius: 0 4px 4px 0;
+        transition: background-color 0.2s;
+      }
+      .subcategory-item:hover {
+        background-color: #f1f1f1;
+      }
+      .subcategory-item.active {
+        background-color: #e8f0fe;
+        color: #4285f4;
+        font-weight: 500;
+      }
+      .content-area {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .bookmark-btn {
+        padding: 10px 20px;
+        background: #4285f4;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+      }
+      .bookmark-btn:hover {
+        background: #3367d6;
+      }
+      .search-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .search-input {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 250px;
+        transition: border-color 0.2s;
+      }
+      .search-input:focus {
+        outline: none;
+        border-color: #4285f4;
+      }
+      .view-container {
+        display: none;
+      }
+      .view-container.active {
+        display: block;
+      }
+      /* List View Styles */
+      .bookmarks-list {
+        list-style: none;
+      }
+      .bookmark-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.2s;
+      }
+      .bookmark-item:hover {
+        background-color: #f9f9f9;
+      }
+      .bookmark-info {
+        flex: 1;
+      }
+      .bookmark-title {
+        font-weight: 500;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+      }
+      .bookmark-url {
+        font-size: 0.9rem;
+        color: #666;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 500px;
+      }
+      .bookmark-description {
+        margin-top: 5px;
+        color: #777;
+        font-size: 0.9rem;
+      }
+      .bookmark-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .tag {
+        background: #e0e0e0;
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 0.8rem;
+        transition: background-color 0.2s;
+      }
+      .tag.work {
+        background: #e8f0fe;
+        color: #4285f4;
+      }
+      .tag.personal {
+        background: #fce8e6;
+        color: #ea4335;
+      }
+      .tag.learning {
+        background: #e6f4ea;
+        color: #34a853;
+      }
+      .bookmark-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .bookmark-actions button {
+        padding: 8px 12px;
+        background: #f1f1f1;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.2s;
+      }
+      .bookmark-actions button:hover {
+        background: #e0e0e0;
+      }
+      /* Table View Styles */
+      .bookmarks-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .bookmarks-table th,
+      .bookmarks-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+      .bookmarks-table th {
+        background: #f1f1f1;
+        font-weight: 500;
+        color: #555;
+      }
+      .bookmarks-table tr:hover {
+        background: #f9f9f9;
+      }
+      .table-url {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .table-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .table-actions button {
+        padding: 6px 10px;
+        background: #f1f1f1;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+        transition: background-color 0.2s;
+      }
+      .table-actions button:hover {
+        background: #e0e0e0;
+      }
+      /* Card View Styles */
+      .bookmarks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      .bookmark-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .bookmark-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+      }
+      .card-title {
+        font-weight: 500;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+      .card-url {
+        font-size: 0.85rem;
+        color: #666;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .card-description {
+        color: #777;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+      .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+      .card-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .card-actions button {
+        padding: 6px 12px;
+        background: #f1f1f1;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.2s;
+      }
+      .card-actions button:hover {
+        background: #e0e0e0;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-style: italic;
+      }
+      .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #ccc;
+      }
+      .instructions {
+        background-color: #e8f0fe;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .instructions h3 {
+        color: #4285f4;
+        margin-bottom: 10px;
+      }
+      .instructions ul {
+        padding-left: 20px;
+      }
+      .instructions li {
+        margin-bottom: 8px;
+      }
+      .filter-info {
+        background-color: #f1f1f1;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .filter-info span {
+        font-weight: 500;
+      }
+      .filter-info button {
+        background: none;
+        border: none;
+        color: #4285f4;
+        cursor: pointer;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <h1>Smart Bookmarks Organizer Demo</h1>
+
+      <div class="instructions">
+        <h3>How to Use This Demo</h3>
+        <ul>
+          <li>
+            This is an enhanced simulation of the Chrome extension with multiple
+            views
+          </li>
+          <li>
+            Use the sidebar to filter bookmarks by category and subcategory
+          </li>
+          <li>
+            Toggle between List, Table, and Card views to see different
+            organization styles
+          </li>
+          <li>Use the search box to find bookmarks by title, URL, or tags</li>
+          <li>
+            Tags are color-coded by category: Work (blue), Personal (red),
+            Learning (green)
+          </li>
+        </ul>
+      </div>
+
+      <div class="extension-mockup">
+        <div class="header">
+          <h2>Smart Bookmarks</h2>
+          <div class="view-toggle">
+            <button id="listView" class="active">
+              <i class="fas fa-list"></i> List
+            </button>
+            <button id="tableView"><i class="fas fa-table"></i> Table</button>
+            <button id="cardView"><i class="fas fa-th-large"></i> Card</button>
+          </div>
+        </div>
+
+        <div class="main-content">
+          <div class="sidebar">
+            <h3>Categories</h3>
+            <div id="categoryList">
+              <!-- Categories will be populated by JS -->
+            </div>
+          </div>
+
+          <div class="content-area">
+            <div class="actions">
+              <button id="bookmarkCurrent" class="bookmark-btn">
+                <i class="fas fa-plus"></i> Bookmark Current Page
+              </button>
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="search"
+                  class="search-input"
+                  placeholder="Search bookmarks..."
+                />
+              </div>
+            </div>
+
+            <div id="filterInfo" class="filter-info" style="display: none">
+              <span id="filterText"></span>
+              <button id="clearFilter">Clear Filter</button>
+            </div>
+
+            <!-- List View -->
+            <div id="listViewContainer" class="view-container active">
+              <ul id="bookmarksList" class="bookmarks-list">
+                <!-- Bookmarks will be inserted here -->
+              </ul>
+            </div>
+
+            <!-- Table View -->
+            <div id="tableViewContainer" class="view-container">
+              <table class="bookmarks-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>URL</th>
+                    <th>Tags</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bookmarksTableBody">
+                  <!-- Bookmarks will be inserted here -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Card View -->
+            <div id="cardViewContainer" class="view-container">
+              <div id="bookmarksGrid" class="bookmarks-grid">
+                <!-- Bookmarks will be inserted here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Simulated data
+      const tagHierarchy = {
+        Work: {
+          Finance: ["banking", "investment", "accounting"],
+          CRM: ["customer", "client", "sales"],
+          Notes: ["documentation", "reference", "notes"],
+        },
+        Personal: {
+          Health: ["fitness", "medical", "wellness"],
+          Family: ["parenting", "family", "children"],
+          Hobbies: ["sports", "reading", "cooking"],
+        },
+        Learning: {
+          Courses: ["tutorial", "course", "lesson"],
+          Research: ["study", "paper", "research"],
+          News: ["article", "news", "blog"],
+        },
+      };
+
+      let bookmarks = [
+        {
+          id: 1,
+          title: "Investopedia",
+          url: "<https://www.investopedia.com>",
+          tags: ["Work:Finance"],
+          description:
+            "Financial education and investing resources with tutorials, articles, and tools",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          title: "Salesforce",
+          url: "<https://www.salesforce.com>",
+          tags: ["Work:CRM"],
+          description:
+            "Customer relationship management platform for businesses of all sizes",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 3,
+          title: "WebMD",
+          url: "<https://www.webmd.com>",
+          tags: ["Personal:Health"],
+          description:
+            "Health information and symptom checker with medical advice and wellness tips",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 4,
+          title: "Parenting.com",
+          url: "<https://www.parenting.com>",
+          tags: ["Personal:Family"],
+          description:
+            "Parenting advice and family resources for all stages of childhood",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 5,
+          title: "Coursera",
+          url: "<https://www.coursera.com>",
+          tags: ["Learning:Courses"],
+          description:
+            "Online courses from top universities and companies worldwide",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 6,
+          title: "Mint",
+          url: "<https://www.mint.com>",
+          tags: ["Work:Finance"],
+          description:
+            "Budget tracking and financial planning tool to manage your money",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 7,
+          title: "HubSpot",
+          url: "<https://www.hubspot.com>",
+          tags: ["Work:CRM"],
+          description:
+            "Inbound marketing and sales platform to grow your business",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 8,
+          title: "MyFitnessPal",
+          url: "<https://www.myfitnesspal.com>",
+          tags: ["Personal:Health"],
+          description:
+            "Calorie counter and diet tracker to help you reach your health goals",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 9,
+          title: "BabyCenter",
+          url: "<https://www.babycenter.com>",
+          tags: ["Personal:Family"],
+          description:
+            "Pregnancy and parenting information from conception to preschool",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 10,
+          title: "edX",
+          url: "<https://www.edx.org>",
+          tags: ["Learning:Courses"],
+          description:
+            "Free online courses from universities like Harvard and MIT",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 11,
+          title: "QuickBooks",
+          url: "<https://quickbooks.intuit.com>",
+          tags: ["Work:Finance"],
+          description:
+            "Accounting software for small businesses to manage finances",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 12,
+          title: "Zoho CRM",
+          url: "<https://www.zoho.com/crm>",
+          tags: ["Work:CRM"],
+          description:
+            "Online customer relationship management software for sales teams",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 13,
+          title: "Mayo Clinic",
+          url: "<https://www.mayoclinic.org>",
+          tags: ["Personal:Health"],
+          description:
+            "Medical information and research from a leading healthcare organization",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 14,
+          title: "FamilyEducation",
+          url: "<https://www.familyeducation.com>",
+          tags: ["Personal:Family"],
+          description:
+            "Parenting advice, activities, and learning resources for families",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: 15,
+          title: "Khan Academy",
+          url: "<https://www.khanacademy.org>",
+          tags: ["Learning:Courses"],
+          description:
+            "Free online courses, lessons, and practice in math, science, and more",
+          createdAt: new Date().toISOString(),
+        },
+      ];
+
+      // State variables
+      let activeView = "list";
+      let activeCategory = null;
+      let activeSubcategory = null;
+      let searchTerm = "";
+
+      // Initialize UI elements
+      const listViewBtn = document.getElementById("listView");
+      const tableViewBtn = document.getElementById("tableView");
+      const cardViewBtn = document.getElementById("cardView");
+      const listViewContainer = document.getElementById("listViewContainer");
+      const tableViewContainer = document.getElementById("tableViewContainer");
+      const cardViewContainer = document.getElementById("cardViewContainer");
+      const bookmarkCurrentBtn = document.getElementById("bookmarkCurrent");
+      const searchInput = document.getElementById("search");
+      const categoryList = document.getElementById("categoryList");
+      const filterInfo = document.getElementById("filterInfo");
+      const filterText = document.getElementById("filterText");
+      const clearFilterBtn = document.getElementById("clearFilter");
+
+      // View toggle
+      listViewBtn.addEventListener("click", () => {
+        setActiveView("list");
+      });
+
+      tableViewBtn.addEventListener("click", () => {
+        setActiveView("table");
+      });
+
+      cardViewBtn.addEventListener("click", () => {
+        setActiveView("card");
+      });
+
+      function setActiveView(view) {
+        activeView = view;
+
+        // Update button states
+        listViewBtn.classList.remove("active");
+        tableViewBtn.classList.remove("active");
+        cardViewBtn.classList.remove("active");
+
+        if (view === "list") {
+          listViewBtn.classList.add("active");
+          listViewContainer.classList.add("active");
+          tableViewContainer.classList.remove("active");
+          cardViewContainer.classList.remove("active");
+        } else if (view === "table") {
+          tableViewBtn.classList.add("active");
+          listViewContainer.classList.remove("active");
+          tableViewContainer.classList.add("active");
+          cardViewContainer.classList.remove("active");
+        } else if (view === "card") {
+          cardViewBtn.classList.add("active");
+          listViewContainer.classList.remove("active");
+          tableViewContainer.classList.remove("active");
+          cardViewContainer.classList.add("active");
+        }
+      }
+
+      // Bookmark current page (simulated)
+      bookmarkCurrentBtn.addEventListener("click", () => {
+        alert(
+          "In the actual extension, this would bookmark the current page with auto-tagging!"
+        );
+      });
+
+      // Search functionality
+      searchInput.addEventListener("input", (e) => {
+        searchTerm = e.target.value.toLowerCase();
+        filterAndDisplayBookmarks();
+      });
+
+      // Clear filter
+      clearFilterBtn.addEventListener("click", () => {
+        activeCategory = null;
+        activeSubcategory = null;
+        searchTerm = "";
+        searchInput.value = "";
+        filterInfo.style.display = "none";
+        loadCategories();
+        filterAndDisplayBookmarks();
+      });
+
+      // Load categories
+      function loadCategories() {
+        categoryList.innerHTML = "";
+
+        // Add "All" category
+        const allCategory = document.createElement("div");
+        allCategory.className =
+          "category-item" + (!activeCategory ? " active" : "");
+        allCategory.innerHTML = '<i class="fas fa-folder"></i> All Bookmarks';
+        allCategory.addEventListener("click", () => {
+          activeCategory = null;
+          activeSubcategory = null;
+          filterInfo.style.display = "none";
+          loadCategories();
+          filterAndDisplayBookmarks();
+        });
+        categoryList.appendChild(allCategory);
+
+        // Add main categories
+        for (const [category, subcategories] of Object.entries(tagHierarchy)) {
+          const categoryDiv = document.createElement("div");
+          categoryDiv.className =
+            "category-item" + (activeCategory === category ? " active" : "");
+
+          const iconClass =
+            category === "Work"
+              ? "fa-briefcase"
+              : category === "Personal"
+              ? "fa-user"
+              : "fa-graduation-cap";
+
+          categoryDiv.innerHTML = `<i class="fas ${iconClass}"></i> ${category}`;
+          categoryDiv.addEventListener("click", () => {
+            activeCategory = category;
+            activeSubcategory = null;
+            filterInfo.style.display = "flex";
+            filterText.textContent = `Filtered by: ${category}`;
+            loadCategories();
+            filterAndDisplayBookmarks();
+          });
+          categoryList.appendChild(categoryDiv);
+
+          // Add subcategories
+          const subcategoryList = document.createElement("div");
+          subcategoryList.className = "subcategory-list";
+
+          for (const subcategory of Object.keys(subcategories)) {
+            const subcategoryDiv = document.createElement("div");
+            subcategoryDiv.className =
+              "subcategory-item" +
+              (activeSubcategory === subcategory ? " active" : "");
+            subcategoryDiv.textContent = subcategory;
+            subcategoryDiv.addEventListener("click", () => {
+              activeCategory = category;
+              activeSubcategory = subcategory;
+              filterInfo.style.display = "flex";
+              filterText.textContent = `Filtered by: ${category} > ${subcategory}`;
+              loadCategories();
+              filterAndDisplayBookmarks();
+            });
+            subcategoryList.appendChild(subcategoryDiv);
+          }
+
+          categoryList.appendChild(subcategoryList);
+        }
+      }
+
+      // Filter and display bookmarks
+      function filterAndDisplayBookmarks() {
+        let filteredBookmarks = bookmarks;
+
+        // Filter by category
+        if (activeCategory) {
+          filteredBookmarks = filteredBookmarks.filter((bookmark) =>
+            bookmark.tags.some((tag) => tag.startsWith(activeCategory))
+          );
+
+          // Filter by subcategory
+          if (activeSubcategory) {
+            filteredBookmarks = filteredBookmarks.filter((bookmark) =>
+              bookmark.tags.includes(`${activeCategory}:${activeSubcategory}`)
+            );
+          }
+        }
+
+        // Filter by search term
+        if (searchTerm) {
+          filteredBookmarks = filteredBookmarks.filter(
+            (bookmark) =>
+              bookmark.title.toLowerCase().includes(searchTerm) ||
+              bookmark.url.toLowerCase().includes(searchTerm) ||
+              bookmark.description.toLowerCase().includes(searchTerm) ||
+              bookmark.tags.some((tag) =>
+                tag.toLowerCase().includes(searchTerm)
+              )
+          );
+        }
+
+        displayBookmarks(filteredBookmarks);
+      }
+
+      // Display bookmarks
+      function displayBookmarks(bookmarksToShow) {
+        // List view
+        const bookmarksList = document.getElementById("bookmarksList");
+        bookmarksList.innerHTML = "";
+
+        // Table view
+        const tableBody = document.getElementById("bookmarksTableBody");
+        tableBody.innerHTML = "";
+
+        // Card view
+        const bookmarksGrid = document.getElementById("bookmarksGrid");
+        bookmarksGrid.innerHTML = "";
+
+        if (bookmarksToShow.length === 0) {
+          const emptyMessage =
+            activeCategory || searchTerm
+              ? "No bookmarks found matching your filters."
+              : "No bookmarks yet. Start by bookmarking a page!";
+
+          const emptyIcon =
+            activeCategory || searchTerm
+              ? '<i class="fas fa-search"></i>'
+              : '<i class="fas fa-bookmark"></i>';
+
+          // List view empty state
+          bookmarksList.innerHTML = `<li class="empty-state">${emptyIcon}<br>${emptyMessage}</li>`;
+
+          // Table view empty state
+          tableBody.innerHTML = `<tr><td colspan="5" class="empty-state">${emptyIcon}<br>${emptyMessage}</td></tr>`;
+
+          // Card view empty state
+          bookmarksGrid.innerHTML = `<div class="empty-state">${emptyIcon}<br>${emptyMessage}</div>`;
+
+          return;
+        }
+
+        bookmarksToShow.forEach((bookmark) => {
+          // List view item
+          const li = document.createElement("li");
+          li.className = "bookmark-item";
+
+          const infoDiv = document.createElement("div");
+          infoDiv.className = "bookmark-info";
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "bookmark-title";
+          titleDiv.textContent = bookmark.title;
+          infoDiv.appendChild(titleDiv);
+
+          const urlDiv = document.createElement("div");
+          urlDiv.className = "bookmark-url";
+          urlDiv.textContent = bookmark.url;
+          infoDiv.appendChild(urlDiv);
+
+          const descDiv = document.createElement("div");
+          descDiv.className = "bookmark-description";
+          descDiv.textContent = bookmark.description;
+          infoDiv.appendChild(descDiv);
+
+          const tagsDiv = document.createElement("div");
+          tagsDiv.className = "bookmark-tags";
+          bookmark.tags.forEach((tag) => {
+            const tagSpan = document.createElement("span");
+            tagSpan.className = "tag";
+
+            // Add category-specific styling
+            if (tag.startsWith("Work:")) {
+              tagSpan.classList.add("work");
+            } else if (tag.startsWith("Personal:")) {
+              tagSpan.classList.add("personal");
+            } else if (tag.startsWith("Learning:")) {
+              tagSpan.classList.add("learning");
+            }
+
+            tagSpan.textContent = tag;
+            tagsDiv.appendChild(tagSpan);
+          });
+          infoDiv.appendChild(tagsDiv);
+
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "bookmark-actions";
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          deleteBtn.title = "Delete";
+          deleteBtn.addEventListener("click", () =>
+            deleteBookmark(bookmark.id)
+          );
+          actionsDiv.appendChild(deleteBtn);
+
+          li.appendChild(infoDiv);
+          li.appendChild(actionsDiv);
+          bookmarksList.appendChild(li);
+
+          // Table view row
+          const tr = document.createElement("tr");
+
+          const titleTd = document.createElement("td");
+          titleTd.textContent = bookmark.title;
+          tr.appendChild(titleTd);
+
+          const urlTd = document.createElement("td");
+          urlTd.className = "table-url";
+          const urlLink = document.createElement("a");
+          urlLink.href = bookmark.url;
+          urlLink.target = "_blank";
+          urlLink.textContent = bookmark.url;
+          urlTd.appendChild(urlLink);
+          tr.appendChild(urlTd);
+
+          const tagsTd = document.createElement("td");
+          tagsTd.className = "table-tags";
+          bookmark.tags.forEach((tag) => {
+            const tagSpan = document.createElement("span");
+            tagSpan.className = "tag";
+
+            // Add category-specific styling
+            if (tag.startsWith("Work:")) {
+              tagSpan.classList.add("work");
+            } else if (tag.startsWith("Personal:")) {
+              tagSpan.classList.add("personal");
+            } else if (tag.startsWith("Learning:")) {
+              tagSpan.classList.add("learning");
+            }
+
+            tagSpan.textContent = tag;
+            tagsTd.appendChild(tagSpan);
+          });
+          tr.appendChild(tagsTd);
+
+          const descTd = document.createElement("td");
+          descTd.textContent = bookmark.description;
+          tr.appendChild(descTd);
+
+          const actionsTd = document.createElement("td");
+          actionsTd.className = "table-actions";
+
+          const deleteBtnTable = document.createElement("button");
+          deleteBtnTable.innerHTML = '<i class="fas fa-trash"></i>';
+          deleteBtnTable.title = "Delete";
+          deleteBtnTable.addEventListener("click", () =>
+            deleteBookmark(bookmark.id)
+          );
+          actionsTd.appendChild(deleteBtnTable);
+
+          tr.appendChild(actionsTd);
+          tableBody.appendChild(tr);
+
+          // Card view
+          const card = document.createElement("div");
+          card.className = "bookmark-card";
+
+          const cardHeader = document.createElement("div");
+          cardHeader.className = "card-header";
+
+          const cardTitleDiv = document.createElement("div");
+          cardTitleDiv.className = "card-title";
+          cardTitleDiv.textContent = bookmark.title;
+          cardHeader.appendChild(cardTitleDiv);
+
+          const cardUrlDiv = document.createElement("div");
+          cardUrlDiv.className = "card-url";
+          cardUrlDiv.textContent = bookmark.url;
+          cardHeader.appendChild(cardUrlDiv);
+
+          card.appendChild(cardHeader);
+
+          const cardDescDiv = document.createElement("div");
+          cardDescDiv.className = "card-description";
+          cardDescDiv.textContent = bookmark.description;
+          card.appendChild(cardDescDiv);
+
+          const cardTagsDiv = document.createElement("div");
+          cardTagsDiv.className = "card-tags";
+          bookmark.tags.forEach((tag) => {
+            const tagSpan = document.createElement("span");
+            tagSpan.className = "tag";
+
+            // Add category-specific styling
+            if (tag.startsWith("Work:")) {
+              tagSpan.classList.add("work");
+            } else if (tag.startsWith("Personal:")) {
+              tagSpan.classList.add("personal");
+            } else if (tag.startsWith("Learning:")) {
+              tagSpan.classList.add("learning");
+            }
+
+            tagSpan.textContent = tag;
+            cardTagsDiv.appendChild(tagSpan);
+          });
+          card.appendChild(cardTagsDiv);
+
+          const cardActionsDiv = document.createElement("div");
+          cardActionsDiv.className = "card-actions";
+
+          const deleteBtnCard = document.createElement("button");
+          deleteBtnCard.innerHTML = '<i class="fas fa-trash"></i> Delete';
+          deleteBtnCard.addEventListener("click", () =>
+            deleteBookmark(bookmark.id)
+          );
+          cardActionsDiv.appendChild(deleteBtnCard);
+
+          card.appendChild(cardActionsDiv);
+          bookmarksGrid.appendChild(card);
+        });
+      }
+
+      function deleteBookmark(id) {
+        const index = bookmarks.findIndex((bookmark) => bookmark.id === id);
+        if (index !== -1) {
+          bookmarks.splice(index, 1);
+          filterAndDisplayBookmarks();
+        }
+      }
+
+      // Initialize the demo
+      loadCategories();
+      filterAndDisplayBookmarks();
+    </script>
+  </body>
+</html>
